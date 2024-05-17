@@ -1,0 +1,1 @@
+# detection-of-ADHD-cases-using-CNN-and-LSTM-models-of-raw-EEG
