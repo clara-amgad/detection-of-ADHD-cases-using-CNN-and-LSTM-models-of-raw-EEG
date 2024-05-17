@@ -132,3 +132,5 @@ The model is trained for 30 epochs with a batch size of 16, using early stopping
 ![image](https://github.com/clara-amgad/detection-of-ADHD-cases-using-CNN-and-LSTM-models-of-raw-EEG/assets/170095494/1df6e852-6e34-4521-9437-9b3bb0b7c898)
 ![image](https://github.com/clara-amgad/detection-of-ADHD-cases-using-CNN-and-LSTM-models-of-raw-EEG/assets/170095494/104fb5c6-50ad-4e6f-8ee1-382efe18caca)
 
+### reference
+[paper](https://doi.org/10.1016/j.cmpbup.2022.100080)
