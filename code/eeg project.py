@@ -31,42 +31,26 @@ from IPython.display import display
 
 
 def convert_mat_to_fif(main_directory, input_folder_names, output_folder_names):
-    """
-    Convert .mat files in the input folders to .fif files and save them in the output folders.
     
-    Parameters:
-    - main_directory (str): Path to the main directory containing the input folders.
-    - input_folder_names (list of str): List of input folder names.
-    - output_folder_names (list of str): List of output folder names.
-    """
-    # Loop through each input folder
     for input_folder, output_folder in zip(input_folder_names, output_folder_names):
-        # Get the full path of the current input folder
-        input_folder_path = os.path.join(main_directory, input_folder)
-        
-        # Specify the output directory for .fif files
+        input_folder_path = os.path.join(main_directory, input_folder)       
         output_directory_path = os.path.join(main_directory, output_folder)
         os.makedirs(output_directory_path, exist_ok=True)
         
-        # Get a list of all .mat files in the current input folder
         mat_files = glob.glob(os.path.join(input_folder_path, '*.mat'))
         
-        # Specify the channel types
         ch_types = ['eeg'] * 19
         ch_names = ['EEG1', 'EEG2', 'EEG3', 'EEG4', 'EEG5', 'EEG6', 'EEG7', 'EEG8', 'EEG9', 'EEG10',
                     'EEG11', 'EEG12', 'EEG13', 'EEG14', 'EEG15', 'EEG16', 'EEG17', 'EEG18', 'EEG19']
         
-        # Loop through each .mat file in the input folder
         for mat_file in mat_files:
             mat_contents = sio.loadmat(mat_file)
             electrode_data = np.array(mat_contents[os.path.splitext(os.path.basename(mat_file))[0]])
             data = [i for i in electrode_data.T]  # Transpose the data
     
-            # Create info and RawArray
             raw_info = mne.create_info(ch_names=ch_names, sfreq=128, ch_types=ch_types)
             raw = mne.io.RawArray(data, info=raw_info)
     
-            # Save the RawArray to a .fif file in the output directory
             output_filename = os.path.splitext(os.path.basename(mat_file))[0] + '.fif'
             output_filepath = os.path.join(output_directory_path, output_filename)
             raw.save(output_filepath, overwrite=True)
@@ -74,13 +58,11 @@ def convert_mat_to_fif(main_directory, input_folder_names, output_folder_names):
     
     print("Processing complete!")
 
-# Specify the main directory containing the input folders
+
 main_directory = r'C:\Users\AL-MOTAHEDA\Downloads\signal'
 
-# Specify the input folder names
 input_folder_names = ['ADHD_part2', 'ADHD_part1', 'Control_part1', 'Control_part2']
 
-# Specify the output folder names
 output_folder_names = ['ADHD_part2_fif', 'ADHD_part1_fif', 'Control_part1_fif', 'Control_part2_fif']
 
 # Call the function
@@ -90,21 +72,8 @@ convert_mat_to_fif(main_directory, input_folder_names, output_folder_names)
 # In[5]:
 
 
-#convert_mat_to_fif(main_directory, input_folder_names, output_folder_names)
-#filtered_data = raw.copy()
-
 def apply_highpass_filter(raw, cutoff_freq):
-    """
-    Apply a high-pass filter to EEG data.
-    
-    Parameters:
-    - raw_data (mne.io.RawArray): Raw EEG data.
-    - cutoff_freq (float): Cutoff frequency in Hz.
-    
-    Returns:
-    - filtered_data (mne.io.RawArray): Filtered EEG data.
-    """
-    # Copy the raw data to avoid modifying the original
+
     filtered_data = raw.copy()
     
     # Apply the high-pass filter
@@ -115,18 +84,13 @@ def apply_highpass_filter(raw, cutoff_freq):
 
 def apply_notch_filter(filtered_raw,fnotch):
     
-    # Copy the raw data to avoid modifying the original
-    #filtered_data = raw.copy()
-    
     # Apply the notch filter
     filtered_raw.notch_filter(freqs=fnotch, picks=None, fir_design='firwin', phase='zero')
     return filtered_raw
 
-#from mne.filter import filter_data
 
 def apply_bandpass_filter(filtered_raw, lowcut, highcut, fs, order=5):
     
-    #filtered_data = raw.copy()
     
     filtered_raw.filter(l_freq=lowcut, h_freq=highcut, picks=None, filter_length='auto', l_trans_bandwidth='auto', h_trans_bandwidth='auto',
                           n_jobs=1, method='fir', iir_params=None, phase='zero', fir_window='hamming',
@@ -156,7 +120,7 @@ def filters(main_directory, input_folder_names, output_folder_names):
             fs = 128
             filtered_raw = apply_bandpass_filter(filtered_raw, lowcut, highcut, fs, order=5)
             
-            fnotch = 50  # Notch filter frequency (e.g., remove 50 Hz power line noise)
+            fnotch = 50  # Notch filter frequency ( remove 50 Hz power line noise)
             filtered_raw = apply_notch_filter(filtered_raw,fnotch)
             
             output_filename = f'label_{label}_' + os.path.basename(fif_file).replace('.fif', '_filtered.fif')
@@ -165,13 +129,10 @@ def filters(main_directory, input_folder_names, output_folder_names):
             print(f"Saved {output_filepath}")
     print("Processing complete!")
 
-# Specify the main directory containing the input folders
 main_directory = r'C:\Users\AL-MOTAHEDA\Downloads\signal'
 
-# Specify the input folder names
 input_folder_names = ['ADHD_part2_fif', 'ADHD_part1_fif', 'Control_part1_fif', 'Control_part2_fif']
 
-# Specify the output folder names
 output_folder_names = ['ADHD_part2_filtered_fif', 'ADHD_part1_filtered_fif', 'Control_part1_filtered_fif', 'Control_part2_filtered_fif']
 
 # Call the function
@@ -325,6 +286,7 @@ X_train_flat = X_train.reshape(X_train.shape[0], -1)
 X_test_flat = X_test.reshape(X_test.shape[0], -1)
 
 # Apply SMOTE
+#to balance the class distribution and improve model performance
 smote = SMOTE(random_state=42)
 X_train_res, y_train_res = smote.fit_resample(X_train_flat, y_train)
 
@@ -341,10 +303,7 @@ print(f'y_train_res shape: {y_train_res.shape}')
 input_shape = (19, EPOCH_LENGTH, 1)
 model = build_eeg_cnn(input_shape)
 
-
-# Create an Adam optimizer with the learning rate set to 0.0001
 adam_optimizer = Adam(learning_rate=0.0001)
-# Compile the model with the custom Adam optimizer
 model.compile(optimizer=adam_optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
@@ -404,19 +363,16 @@ print(len(train_files), len(test_files))
 predicted_labels = model.predict(X_test)
 predicted_classes = (predicted_labels > 0.5).astype(int).flatten()
 
-# Plot EEG data with true and predicted labels
 num_samples = X_test.shape[0]
 num_channels = X_test.shape[1]
-num_subplots = num_samples + 1  # Add one for the legend
+num_subplots = num_samples + 1  
 
-# Specify the range of indices to plot
-start_index = 1000  # Example: start from index 1000
-end_index = 2000    # Example: end at index 2000
+start_index = 1000  
+end_index = 2000    
 
 plt.figure(figsize=(12, 3 * num_subplots))
 for i in range(num_samples):
     plt.subplot(num_subplots, 1, i + 1)
-    # Flatten the EEG data for plotting
     flattened_data = X_test[i].flatten()[start_index:end_index]
     plt.plot(flattened_data, label=f'True Label: {y_test[i]}, Predicted Label: {predicted_classes[i]}')
     plt.xlabel('Time')
@@ -442,14 +398,11 @@ import matplotlib.pyplot as plt
 import os
 import glob
 
-# Make predictions
 y_pred = model.predict(X_test)
 y_pred_classes = (y_pred > 0.5).astype(int).flatten()
 
-# Generate confusion matrix
 conf_matrix = confusion_matrix(y_test, y_pred_classes)
 
-# Display the confusion matrix
 disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=['Control', 'ADHD'])
 disp.plot(cmap=plt.cm.Blues)
 plt.show()
@@ -470,12 +423,9 @@ import os
 import glob
 
 
-
-# Compute ROC curve and ROC area
 fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
 roc_auc = roc_auc_score(y_test, y_pred_prob)
 
-# Plot ROC curve
 plt.figure()
 plt.plot(fpr, tpr, color='red', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
 plt.plot([0, 1], [0, 1], color='blue', lw=2, linestyle='--')
@@ -602,9 +552,7 @@ print(f'y_train_res shape: {y_train_res.shape}')
 input_shape = (19, EPOCH_LENGTH)
 lstm_model = build_eeg_lstm(input_shape)
 
-# Create an Adam optimizer with the learning rate set to 0.0001
 adam_optimizer = Adam(learning_rate=0.0001)
-# Compile the lstm_model with the custom Adam optimizer
 lstm_model.compile(optimizer=adam_optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
 early_stopping = EarlyStopping(monitor='val_loss', patience=10, restore_best_weights=True)
@@ -656,19 +604,16 @@ lstm_model.summary()
 predicted_labels = lstm_model.predict(X_test)
 predicted_classes = (predicted_labels > 0.5).astype(int).flatten()
 
-# Plot EEG data with true and predicted labels
 num_samples = X_test.shape[0]
 num_channels = X_test.shape[1]
-num_subplots = num_samples + 1  # Add one for the legend
+num_subplots = num_samples + 1  
 
-# Specify the range of indices to plot
-start_index = 1000  # Example: start from index 1000
-end_index = 2000    # Example: end at index 2000
+start_index = 1000  
+end_index = 2000    
 
 plt.figure(figsize=(12, 3 * num_subplots))
 for i in range(num_samples):
     plt.subplot(num_subplots, 1, i + 1)
-    # Flatten the EEG data for plotting
     flattened_data = X_test[i].flatten()[start_index:end_index]
     plt.plot(flattened_data, label=f'True Label: {y_test[i]}, Predicted Label: {predicted_classes[i]}')
     plt.xlabel('Time')
@@ -694,14 +639,11 @@ import matplotlib.pyplot as plt
 import os
 import glob
 
-# Make predictions
 y_pred = lstm_model.predict(X_test)
 y_pred_classes = (y_pred > 0.5).astype(int).flatten()
 
-# Generate confusion matrix
 conf_matrix = confusion_matrix(y_test, y_pred_classes)
 
-# Display the confusion matrix
 disp = ConfusionMatrixDisplay(confusion_matrix=conf_matrix, display_labels=['Control', 'ADHD'])
 disp.plot(cmap=plt.cm.Reds)
 plt.show()
@@ -721,15 +663,12 @@ import matplotlib.pyplot as plt
 import os
 import glob
 
-# Make predictions
 y_pred_prob = lstm_model.predict(X_test)
 y_pred_classes = (y_pred_prob > 0.5).astype(int).flatten()
 
-# Compute ROC curve and ROC area
 fpr, tpr, _ = roc_curve(y_test, y_pred_prob)
 roc_auc = roc_auc_score(y_test, y_pred_prob)
 
-# Plot ROC curve
 plt.figure()
 plt.plot(fpr, tpr, color='pink', lw=2, label=f'ROC curve (area = {roc_auc:.2f})')
 plt.plot([0, 1], [0, 1], color='green', lw=2, linestyle='--')
