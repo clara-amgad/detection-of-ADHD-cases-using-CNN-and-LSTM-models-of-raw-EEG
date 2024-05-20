@@ -1,5 +1,6 @@
 ### project title 
 Detection of ADHD cases using CNN and LTSM models.
+
 ### description
 This study proposes a novel convolutional neural network (CNN) structure in conjunction with 
 classical machine learning models, utilizing the raw electroencephalography (EEG) signal as the input to 
