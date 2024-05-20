@@ -6,6 +6,7 @@ classical machine learning models, utilizing the raw electroencephalography (EEG
 diagnose attention deficit hyperactivity disorder (ADHD) in children. The proposed EEG-based approach does 
 not require transformation or artifact rejection techniques.
 
+
 ### installation
 1. MNE:
       - A Python package for processing EEG data.
